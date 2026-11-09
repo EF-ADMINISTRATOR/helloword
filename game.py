@@ -1,65 +1,47 @@
 def is_win(game):
-    win = False
-    # rows
-    if game[0][0] == game[0][1] == game[0][2] and (game[0][0] == 'X' or game[0][0] == 'O'):
-        win = True
-    if game[1][0] == game[1][1] == game[1][2] and (game[1][0] == 'X' or game[1][0] == 'O'):
-        win = True
-    if game[2][0] == game[2][1] == game[2][2] and (game[2][0] == 'X' or game[2][0] == 'O'):
-        win = True
-    # columns
-    if game[0][0] == game[1][0] == game[2][0] and (game[0][0] == 'X' or game[0][0] == 'O'):
-        win = True
-    if game[0][1] == game[1][1] == game[2][1] and (game[0][1] == 'X' or game[0][1] == 'O'):
-        win = True
-    if game[0][2] == game[1][2] == game[2][2] and (game[0][2] == 'X' or game[0][2] == 'O'):
-        win = True
-    # diagonals
-    if game[0][0] == game[1][1] == game[2][2] and (game[0][0] == 'X' or game[0][0] == 'O'):
-        win = True
-    if game[0][2] == game[1][1] == game[2][0] and (game[0][2] == 'X' or game[0][2] == 'O'):
-        win = True
-    return win
+    """Return whether either player has three marks in a line."""
+    lines = list(game)
+    lines += [[game[r][c] for r in range(3)] for c in range(3)]
+    lines += [[game[i][i] for i in range(3)],
+              [game[i][2 - i] for i in range(3)]]
+    return any(line[0] in ('X', 'O') and line[0] == line[1] == line[2]
+               for line in lines)
 
 
 def main():
-    # Initialize the game board
     game = [['*' for _ in range(3)] for _ in range(3)]
-    player1 = 'X'
-    player2 = 'O'
-    turn = True  # False for player 1's turn, True for player 2's turn. Player 1 first.
-    
-    print("X = Player 1")
-    print("O = Player 2")
-    
-    for n in range(9):
-        turn = not turn  # Toggle turn
-        
-        if turn == False:
-            print("Player 1: ", end="")
-        else:
-            print("Player 2: ", end="")
-        
-        print("Which cell to mark? i:[1..3], j:[1..3]: ", end="")
-        i, j = map(int, input().split())
-        
-        if turn == False:
-            game[i][j] = 'X'
-        else:
-            game[i][j] = 'O'
-        
+    print('X = Player 1')
+    print('O = Player 2')
+
+    for turn in range(9):
+        player = 'X' if turn % 2 == 0 else 'O'
+        while True:
+            try:
+                row, col = map(int, input(
+                    f'Player {1 if player == "X" else 2}: '
+                    'Which cell to mark? i:[1..3], j:[1..3]: '
+                ).split())
+                if not (1 <= row <= 3 and 1 <= col <= 3):
+                    print('Please enter two numbers from 1 to 3.')
+                    continue
+                row -= 1
+                col -= 1
+                if game[row][col] != '*':
+                    print('That cell is occupied. Try again.')
+                    continue
+                break
+            except ValueError:
+                print('Please enter two numbers from 1 to 3.')
+
+        game[row][col] = player
+        for board_row in game:
+            print(' '.join(board_row))
         if is_win(game):
-            print("Win!")
+            print(f'Player {1 if player == "X" else 2} wins!')
             break
-    
-    if n == 8:  # All 9 cells have been filled (n goes 0 to 8)
-        print("Tie!")
-    
-    # Show the game to console
-    print(game[0][0] + " " + game[0][1] + " " + game[0][2])
-    print(game[1][0] + " " + game[1][1] + " " + game[1][2])
-    print(game[2][0] + " " + game[2][1] + " " + game[2][2])
+    else:
+        print('Tie!')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
